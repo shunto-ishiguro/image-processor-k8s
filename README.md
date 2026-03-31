@@ -91,11 +91,8 @@ kubectl version --client
 
 Kubernetesなしでも普通に動くことを確認。
 
-### テスト画像を生成
-```bash
-make generate-image
-# → testdata/sample.jpg が作られる（800x600のカラフルな画像）
-```
+### サンプル画像
+テスト用の画像は `testdata/sample.jpg` にあらかじめ用意してあります（800x600）。
 
 ### サーバー起動
 ```bash
@@ -487,7 +484,6 @@ curl -F "image=@photo.jpg" "localhost:8080/api/rotate?angle=90" -o rotated.jpg
 ```bash
 make run              # サーバー起動
 make build            # バイナリビルド
-make generate-image   # テスト画像生成
 make load-test        # 負荷テスト
 
 make docker-build     # Dockerイメージビルド

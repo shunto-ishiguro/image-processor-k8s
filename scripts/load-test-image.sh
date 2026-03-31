@@ -11,7 +11,7 @@ IMAGE_PATH="testdata/sample.jpg"
 # 画像があるか確認
 if [ ! -f "$IMAGE_PATH" ]; then
     echo "Error: $IMAGE_PATH が見つかりません"
-    echo "先に make generate-image を実行してください"
+    echo "testdata/sample.jpg を用意してください"
     exit 1
 fi
 

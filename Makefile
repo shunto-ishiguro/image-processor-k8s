@@ -1,4 +1,4 @@
-.PHONY: build run test docker-build docker-run k8s-apply k8s-delete generate-image load-test
+.PHONY: build run test docker-build docker-run k8s-apply k8s-delete load-test
 
 # Go commands
 build:
@@ -9,11 +9,6 @@ run:
 
 test:
 	go test -v ./...
-
-# テスト画像を生成
-generate-image:
-	@mkdir -p testdata
-	go run scripts/generate-test-image.go testdata/sample.jpg
 
 # 画像処理APIに負荷テスト
 load-test:
