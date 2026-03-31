@@ -34,3 +34,4 @@ output/*
 !output/.gitkeep
 testdata/*
 !testdata/.gitkeep
+!testdata/sample.jpg
