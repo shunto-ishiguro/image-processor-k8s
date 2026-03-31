@@ -51,6 +51,7 @@ image-processing-k8s/
 
 - **[docs/basics.md](docs/basics.md)** - Kubernetes用語集・基礎知識
 - **[docs/k8s-manifests.md](docs/k8s-manifests.md)** - k8s/フォルダのYAMLファイル解説
+- **[docs/orchestration-and-hpa.md](docs/orchestration-and-hpa.md)** - オーケストレーションとHPAの違い・仕組み
 
 ---
 

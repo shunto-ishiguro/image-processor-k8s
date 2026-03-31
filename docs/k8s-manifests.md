@@ -309,7 +309,7 @@ resources:
 
 なぜ必要？
 - 1つのPodが暴走しても、他に影響しない
-- HPAがスケーリング判断に使う
+- HPAがスケーリング判断に使う（詳しくは [orchestration-and-hpa.md](orchestration-and-hpa.md)）
 
 #### livenessProbe（生存確認）
 
@@ -448,78 +448,12 @@ kubectl port-forward service/image-api 8080:80 -n image-api
 
 ## hpa.yaml
 
-### 役割
+負荷に応じてPod数を自動調整する設定。
 
-負荷に応じてPod数を自動調整。HPA = Horizontal Pod Autoscaler。
+HPAの仕組み（オーケストレーションとの違い、metrics-serverが必要な理由など）は
+**[orchestration-and-hpa.md](orchestration-and-hpa.md)** に詳しくまとめている。
 
-### ファイル内容
-
-```yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: image-api-hpa
-  namespace: image-api
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: image-api          # このDeploymentを対象に
-  minReplicas: 1             # 最小Pod数
-  maxReplicas: 5             # 最大Pod数
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 50   # CPU使用率50%を目標
-```
-
-### 行ごとの説明
-
-| 行 | 意味 |
-|----|------|
-| `scaleTargetRef` | どのDeploymentを対象にするか |
-| `minReplicas: 1` | 最低1台は動かす |
-| `maxReplicas: 5` | 最大5台まで増やす |
-| `averageUtilization: 50` | 平均CPU使用率を50%に保つ |
-
-### どう動く？
-
-```
-CPU使用率 20% → Pod 1台で十分
-CPU使用率 60% → 50%に近づけるため Pod増やす
-CPU使用率 80% → もっとPod増やす
-CPU使用率 30% → Pod減らす（でも最低1台）
-```
-
-```
-負荷テスト開始
-  ↓
-CPU使用率上昇（80%）
-  ↓
-HPAが検知
-  ↓
-Podを増やす（1台→3台）
-  ↓
-負荷分散されてCPU使用率低下（50%前後）
-  ↓
-負荷テスト終了
-  ↓
-CPU使用率低下（10%）
-  ↓
-Podを減らす（3台→1台）
-```
-
-### 確認コマンド
-
-```bash
-kubectl get hpa -n image-api
-
-# リアルタイム監視
-watch kubectl get hpa,pods -n image-api
-```
+設定内容と確認コマンドもそちらを参照。
 
 ---
 
