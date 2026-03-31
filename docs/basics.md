@@ -390,7 +390,7 @@ bash scripts/load-test-image.sh
 | **Service** | Podへのアクセス方法を定義。ロードバランサー的な役割。 |
 | **ConfigMap** | 設定値を外部ファイルで管理。 |
 | **Secret** | パスワードなど機密情報を管理。 |
-| **HPA** | Horizontal Pod Autoscaler。負荷に応じてPod数を自動調整。 |
+| **HPA** | Horizontal Pod Autoscaler。負荷に応じてPod数を自動調整。詳しくは [orchestration-and-hpa.md](orchestration-and-hpa.md) |
 | **kubectl** | Kubernetesを操作するコマンドラインツール。 |
 | **minikube** | ローカルPCでKubernetesを動かすツール。 |
 | **Docker** | コンテナを作成・実行するツール。 |
