@@ -21,10 +21,12 @@
 
 Kubernetesへの「指示書」。
 
-```
-「こういうアプリを動かしてね」
-「サーバー2台で動かしてね」
-「ポート8080で公開してね」
+```mermaid
+graph LR
+    Y["YAMLファイル"] -->|指示| K8s["Kubernetes"]
+    K8s --> A["アプリを動かす"]
+    K8s --> B["サーバー2台で動かす"]
+    K8s --> C["ポート8080で公開する"]
 ```
 
 これをYAML形式で書いたもの。
@@ -35,13 +37,13 @@ Kubernetesへの「指示書」。
 
 依存関係があるので、順番が大事：
 
-```
-1. namespace.yaml   ← まず「部屋」を作る
-2. configmap.yaml   ← 設定を用意
-3. secret.yaml      ← 機密情報を用意
-4. deployment.yaml  ← アプリを起動（↑の設定を使う）
-5. service.yaml     ← 外部に公開
-6. hpa.yaml         ← 自動スケーリング設定
+```mermaid
+flowchart TD
+    A["1. namespace.yaml\nまず「部屋」を作る"] --> B["2. configmap.yaml\n設定を用意"]
+    B --> C["3. secret.yaml\n機密情報を用意"]
+    C --> D["4. deployment.yaml\nアプリを起動（設定を使う）"]
+    D --> E["5. service.yaml\n外部に公開"]
+    E --> F["6. hpa.yaml\n自動スケーリング設定"]
 ```
 
 コマンド：
@@ -87,11 +89,12 @@ metadata:
 
 ### なぜ必要？
 
-```
-Kubernetesクラスター
-├── default（デフォルトの部屋）
-├── kube-system（システム用）
-└── image-api（このプロジェクト用）← これを作る
+```mermaid
+graph TD
+    K8s["Kubernetesクラスター"] --> D["default\n（デフォルトの部屋）"]
+    K8s --> S["kube-system\n（システム用）"]
+    K8s --> I["image-api\n（このプロジェクト用）← これを作る"]
+    style I fill:#f9f,stroke:#333
 ```
 
 他のプロジェクトと混ざらないように分ける。
@@ -153,9 +156,10 @@ port := os.Getenv("PORT")  // → "8080"
 
 設定をコードから分離できる：
 
-```
-本番環境: PORT=80, LOG_LEVEL=error
-開発環境: PORT=8080, LOG_LEVEL=debug
+```mermaid
+graph LR
+    Code["同じコード"] --> Prod["本番環境\nPORT=80, LOG_LEVEL=error"]
+    Code --> Dev["開発環境\nPORT=8080, LOG_LEVEL=debug"]
 ```
 
 コードは同じ、設定だけ変える。
@@ -289,10 +293,10 @@ replicas: 2
 
 同じPodを何個動かすか。2なら2台のサーバーが起動する。
 
-```
-replicas: 2
-  → Pod 1（画像処理API）
-  → Pod 2（画像処理API）
+```mermaid
+graph LR
+    R["replicas: 2"] --> P1["Pod 1（画像処理API）"]
+    R --> P2["Pod 2（画像処理API）"]
 ```
 
 #### resources（リソース制限）
@@ -335,9 +339,10 @@ readinessProbe:
 
 「リクエストを受け付けられるか」を確認。失敗したらトラフィックを送らない。
 
-```
-livenessProbe失敗  → Podを再起動
-readinessProbe失敗 → そのPodにリクエストを送らない（再起動はしない）
+```mermaid
+graph LR
+    LP["livenessProbe失敗"] --> LR["Podを再起動"]
+    RP["readinessProbe失敗"] --> RR["そのPodにリクエストを送らない\n（再起動はしない）"]
 ```
 
 ### 確認コマンド
@@ -362,18 +367,18 @@ Podへのアクセス方法を定義。ロードバランサーの役割。
 
 Podは起動するたびにIPアドレスが変わる：
 
-```
-Pod再起動前: 10.0.0.5
-Pod再起動後: 10.0.0.8  ← IPが変わった！
+```mermaid
+graph LR
+    Before["Pod再起動前\n10.0.0.5"] -.->|"IPが変わった！"| After["Pod再起動後\n10.0.0.8"]
 ```
 
 Serviceは固定のアドレスを提供する：
 
-```
-Service: image-api (固定)
-  └→ Pod 1 (10.0.0.5)
-  └→ Pod 2 (10.0.0.6)
-  └→ Pod 3 (10.0.0.7)
+```mermaid
+graph TD
+    S["Service: image-api（固定）"] --> P1["Pod 1\n10.0.0.5"]
+    S --> P2["Pod 2\n10.0.0.6"]
+    S --> P3["Pod 3\n10.0.0.7"]
 ```
 
 ### ファイル内容
@@ -397,10 +402,11 @@ spec:
       targetPort: 8080      # Podのポート
 ```
 
-```
-クラスター内部から:
-http://image-api.image-api.svc.cluster.local:80
-  → 自動でPodに振り分け
+```mermaid
+graph LR
+    Client["クラスター内部"] -->|"http://image-api:80"| SVC["Service\n(ClusterIP)"]
+    SVC -->|振り分け| P1["Pod"]
+    SVC -->|振り分け| P2["Pod"]
 ```
 
 #### NodePort（外部公開用）
@@ -420,11 +426,11 @@ spec:
       nodePort: 30080       # Nodeの30080ポートで公開
 ```
 
-```
-外部から:
-http://<NodeのIP>:30080
-  → Serviceに到達
-  → Podに振り分け
+```mermaid
+graph LR
+    External["外部"] -->|"http://NodeのIP:30080"| SVC["Service\n(NodePort)"]
+    SVC -->|振り分け| P1["Pod"]
+    SVC -->|振り分け| P2["Pod"]
 ```
 
 ### Serviceの種類
